@@ -17,13 +17,13 @@
         <div class="row">
           <div class="col">
             <div class="form-floating">
-              <textarea class="form-control" id="PointA"></textarea>
+              <textarea class="form-control" id="PointA" style="max-height: 300px;"></textarea>
               <label for="PointA">A 點 (可輸入多組，一行視為一組)</label>
             </div>
           </div>
           <div class="col">
             <div class="form-floating">
-              <textarea class="form-control" id="PointB"></textarea>
+              <textarea class="form-control" id="PointB" style="max-height: 300px;"></textarea>
               <label for="PointB">B 點 (可輸入多組，一行視為一組)</label>
             </div>
           </div>
@@ -112,6 +112,10 @@
               return;
             }
             for (let i = 0; i < PointA_list.length; i += 1) {
+              if (PointA_list[i] == "" || PointB_list[i] == "") {
+                window.alert("偵測到第 " + (i+1) + " 行內容空白，將跳過不處理!")
+                continue;
+              }
               let tr = $("<tr>");
               let PointA_str = $("<td>").text(PointA_list[i]);
               PointA_latlng = await geocoding(PointA_list[i], searchParams.get("API_KEY"));
@@ -130,11 +134,11 @@
                 )
               );
               tr.append(PointA_str);
-              tr.append(PointA_lat);
               tr.append(PointA_lng);
+              tr.append(PointA_lat);
               tr.append(PointB_str);
-              tr.append(PointB_lat);
               tr.append(PointB_lng);
+              tr.append(PointB_lat);
               tr.append(distance);
               console.log(tr);
               tbody.append(tr);
