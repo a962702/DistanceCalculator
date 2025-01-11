@@ -145,7 +145,7 @@
                 PointB_str.text(PointB_list[0]);
               } else {
                 PointB_str.text(PointB_list[i]);
-                PointB_latlng = await geocoding(PointB, searchParams.get("API_KEY"));
+                PointB_latlng = await geocoding(PointB_list[i], searchParams.get("API_KEY"));
               }
               if (("lng" in PointB_latlng) && ("lng" in PointB_latlng)) {
                 PointB_lng.text(PointB_latlng.lng);
