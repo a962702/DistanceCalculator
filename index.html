@@ -106,41 +106,60 @@
             tbody.html("");
             let PointA_list = $("#PointA").val().split(/\n/);
             let PointB_list = $("#PointB").val().split(/\n/);
-            if (PointA_list.length != PointB_list.length) {
+            if (PointA_list.length != PointB_list.length && PointB_list.length != 1) {
               window.alert("[錯誤] A 點清單長度與 B 點清單長度不同\nA 點長度為：" + PointA_list.length + "\nB 點長度為：" + PointB_list.length);
               $("#btn_calc").removeAttr("disabled");
               return;
             }
+
+            /***** If Point B only one, assume every Point A use same Point B *****/
+            let PointB_latlng = null;
+            if (PointB_list.length == 1) {
+              PointB_latlng = await geocoding(PointB_list[0], searchParams.get("API_KEY"));
+            }
+
             for (let i = 0; i < PointA_list.length; i += 1) {
-              if (PointA_list[i] == "" || PointB_list[i] == "") {
-                window.alert("偵測到第 " + (i+1) + " 行內容空白，將跳過不處理!")
+              if (PointA_list[i] == "" || (PointB_list.length > 1 && PointB_list[i] == "")) {
+                window.alert("偵測到第 " + (i + 1) + " 行內容空白，將跳過不處理!")
                 continue;
               }
               let tr = $("<tr>");
+              /**** Point A *****/
               let PointA_str = $("<td>").text(PointA_list[i]);
               PointA_latlng = await geocoding(PointA_list[i], searchParams.get("API_KEY"));
-              console.log(PointA_latlng);
               let PointA_lng = $("<td>").text(PointA_latlng.lng);
               let PointA_lat = $("<td>").text(PointA_latlng.lat);
-              let PointB_str = $("<td>").text(PointB_list[i]);
-              PointB_latlng = await geocoding(PointB_list[i], searchParams.get("API_KEY"));
-              console.log(PointB_latlng);
-              let PointB_lng = $("<td>").text(PointB_latlng.lng);
-              let PointB_lat = $("<td>").text(PointB_latlng.lat);
+              tr.append(PointA_str);
+              tr.append(PointA_lng);
+              tr.append(PointA_lat);
+
+              /**** Point B *****/
+              if (PointB_list.length == 1) {
+                let PointB_str = $("<td>").text(PointB_list[0]);
+                let PointB_lng = $("<td>").text(PointB_latlng.lng);
+                let PointB_lat = $("<td>").text(PointB_latlng.lat);
+                tr.append(PointB_str);
+                tr.append(PointB_lng);
+                tr.append(PointB_lat);
+              } else {
+                let PointB_str = $("<td>").text(PointB_list[i]);
+                PointB_latlng = await geocoding(PointB, searchParams.get("API_KEY"));
+                let PointB_lng = $("<td>").text(PointB_latlng.lng);
+                let PointB_lat = $("<td>").text(PointB_latlng.lat);
+                tr.append(PointB_str);
+                tr.append(PointB_lng);
+                tr.append(PointB_lat);
+              }
+
+              /***** Distance *****/
               let distance = $("<td>").text(
                 geolib.getDistance(
                   { longitude: PointA_latlng.lng, latitude: PointA_latlng.lat },
                   { longitude: PointB_latlng.lng, latitude: PointB_latlng.lat }
                 )
               );
-              tr.append(PointA_str);
-              tr.append(PointA_lng);
-              tr.append(PointA_lat);
-              tr.append(PointB_str);
-              tr.append(PointB_lng);
-              tr.append(PointB_lat);
               tr.append(distance);
-              console.log(tr);
+
               tbody.append(tr);
             }
             $("#btn_calc").removeAttr("disabled");
