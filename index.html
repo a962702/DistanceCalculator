@@ -119,6 +119,7 @@
             }
 
             for (let i = 0; i < PointA_list.length; i += 1) {
+              $("#btn_calc").text("處理中...(" + (i + 1) + "/" + PointA_list.length + ")");
               let tr = $("<tr>");
 
               /**** Point A *****/
@@ -170,6 +171,7 @@
 
               tbody.append(tr);
             }
+            $("#btn_calc").text("開始計算");
             $("#btn_calc").removeAttr("disabled");
           });
 
