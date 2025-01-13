@@ -180,8 +180,30 @@
             $("#btn_export").removeAttr("disabled");
           })
 
+          /***** Use cache to reduce query count *****/
+          function geocoding_from_cache(address) {
+            if (sessionStorage.getItem("cache") == null) {
+              sessionStorage.setItem("cache", JSON.stringify({}));
+            }
+            cache = JSON.parse(sessionStorage.getItem("cache"));
+            if (cache[address] != undefined) { return cache[address] }
+            else { return null }
+          }
+
+          function save_to_cache(address, answer) {
+            if (sessionStorage.getItem("cache") == null) {
+              sessionStorage.setItem("cache", JSON.stringify({}));
+            }
+            cache = JSON.parse(sessionStorage.getItem("cache"));
+            cache[address] = answer;
+            sessionStorage.setItem("cache", JSON.stringify(cache));
+          }
+
           function geocoding(address, key) {
+            address = address.trim();
             if (address == "") return { "msg": "Empty address" };
+            cache_answer = geocoding_from_cache(address);
+            if (cache_answer != null) return cache_answer;
             return axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + key).then(res => {
               if (res.status != 200) {
                 //window.alert("發生錯誤! 錯誤訊息：" + statusText);
@@ -190,6 +212,7 @@
                 try {
                   if (res.data.status != "OK") return { "msg": res.data.status };
                   let location = res.data.results[0].geometry.location;
+                  save_to_cache(address, location);
                   return location;
                 } catch (e) {
                   //window.alert("發生錯誤! 錯誤訊息：" + e);
